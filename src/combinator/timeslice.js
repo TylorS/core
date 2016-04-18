@@ -1,4 +1,4 @@
-import {curry2, noop} from '@most/prelude'
+import {curry2} from '@most/prelude'
 
 import {Stream} from '../Stream'
 import {all} from '../disposable/index'

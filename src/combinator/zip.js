@@ -60,7 +60,7 @@ class ZipSink {
     buffer.push(value)
 
     if (buffer.length() === 1) {
-      if(!ready(this.buffers)) {
+      if (!ready(this.buffers)) {
         return
       }
 

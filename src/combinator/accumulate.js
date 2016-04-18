@@ -1,4 +1,4 @@
-import {noop, curry3} from '@most/prelude'
+import {curry3} from '@most/prelude'
 
 import {Stream} from '../Stream'
 import {withDefaultScheduler} from '../runSource'
@@ -9,7 +9,7 @@ export const scan = curry3((fn, initial, stream) =>
 )
 
 export const reduce = curry3((fn, initial, stream) =>
-  withDefaultScheduler(noop, new Accumulate(AccumulateSink, fn, initial, stream.source))
+  withDefaultScheduler(() => {}, new Accumulate(AccumulateSink, fn, initial, stream.source))
 )
 
 class Accumulate {

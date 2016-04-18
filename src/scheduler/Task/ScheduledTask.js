@@ -11,8 +11,8 @@ export class ScheduledTask {
     this.task.run(this.time)
   }
 
-  error () {
-    this.task.error(this.time)
+  error (err) {
+    this.task.error(this.time, err)
   }
 
   cancel () {

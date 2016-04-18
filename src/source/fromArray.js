@@ -25,7 +25,11 @@ class ArrayProducer {
   dispose () { this.task.dispose() }
 }
 
-function runProducer (task, array, sink) {
+function runProducer (time, array, sink) {
+  produce(this, array, sink)
+}
+
+function produce (task, array, sink) {
   for (let i = 0, l = array.length; i < l && task.active; ++i) {
     sink.event(0, array[i])
   }

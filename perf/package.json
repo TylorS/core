@@ -1,0 +1,21 @@
+{
+  "name": "most-perf",
+  "version": "0.0.0",
+  "description": "performance testing for most.js against common libraries",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mostjs <tlsteinberger167@gmail.com> (github.com/mostjs)",
+  "license": "MIT",
+  "dependencies": {
+    "babel-register-cli": "^2.0.1",
+    "baconjs": "^0.7.84",
+    "benchmark": "^2.1.0",
+    "highland": "^2.7.4",
+    "kefir": "^3.2.1",
+    "lodash": "^4.11.1",
+    "rx": "^4.1.0",
+    "rxjs": "^5.0.0-beta.6"
+  }
+}

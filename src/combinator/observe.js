@@ -6,4 +6,6 @@ export const observe = curry2((fn, stream) => {
   return withDefaultScheduler(fn, stream.source)
 })
 
+export const forEach = observe
+
 export const drain = stream => withDefaultScheduler(noop, stream.source)
