@@ -17,7 +17,8 @@ export function tryDispose (time, disposable, sink) {
 }
 
 export function once (disposable) {
-  return new Disposable(disposeMemoized, memoized(disposable))
+  const memoizedDisposable = memoized(disposable)
+  return new Disposable(() => disposeMemoized(memoizedDisposable), void 0)
 }
 
 export function create (dispose, data) {

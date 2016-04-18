@@ -37,11 +37,7 @@ class Outer {
   }
 
   event (time, stream) {
-    if (this.current.length < this.concurrency) {
-      this._startInner(time, stream)
-    } else {
-      this.pending.push(stream)
-    }
+    this._addInner(time, stream)
   }
 
   error (time, err) {
@@ -58,7 +54,15 @@ class Outer {
   dispose () {
     this.active = false
     this.pending.length = 0
-    return Promise.all([this.disposable.dispose9(), this.current.dispose()])
+    return Promise.all([this.disposable.dispose(), this.current.dispose()])
+  }
+
+  _addInner (time, stream) {
+    if (this.current.length < this.concurrency) {
+      this._startInner(time, stream)
+    } else {
+      this.pending.push(stream)
+    }
   }
 
   _startInner (time, stream) {

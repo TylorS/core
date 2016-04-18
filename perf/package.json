@@ -9,7 +9,6 @@
   "author": "mostjs <tlsteinberger167@gmail.com> (github.com/mostjs)",
   "license": "MIT",
   "dependencies": {
-    "babel-register-cli": "^2.0.1",
     "baconjs": "^0.7.84",
     "benchmark": "^2.1.0",
     "highland": "^2.7.4",

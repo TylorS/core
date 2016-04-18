@@ -22,4 +22,4 @@ export * from './switch'
 export * from './timeslice'
 export * from './transduce'
 export * from './transform'
-export * from './zip' // TODO
+export * from './zip'

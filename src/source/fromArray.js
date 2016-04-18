@@ -30,10 +30,14 @@ function runProducer (time, array, sink) {
 }
 
 function produce (task, array, sink) {
-  for (let i = 0, l = array.length; i < l && task.active; ++i) {
+  const length = array.length
+  for (let i = 0; i < length && task.active; ++i) {
     sink.event(0, array[i])
   }
-  const end = () => sink.end(0)
 
   task.active && end()
+
+  function end () {
+    sink.end(0, void 0)
+  }
 }

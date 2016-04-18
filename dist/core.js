@@ -16,7 +16,7 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.tryEnd = exports.tryEvent = exports.tryRunTask = exports.makeIterable = exports.getIterator = exports.isIterable = exports.invoke = exports.insertByTime = exports.binarySearch = exports.LinkedList = exports.Queue = exports.isPromise = exports.defer = exports.fatalError = exports.nodeTimer = exports.timeoutTimer = exports.Scheduler = exports.defaultScheduler = exports.runAsTask = exports.Task = exports.ScheduledTask = exports.PropagateTask = exports.Observer = exports.hasValue = exports.IndexSink = exports.DeferredSink = exports.runSource = exports.withScheduler = exports.withDefaultScheduler = exports.zip = exports.zipArray = exports.constant = exports.tap = exports.transduce = exports.during = exports.skipUntil = exports.takeUntil = exports.switchLatest = exports.skipWhile = exports.takeWhile = exports.take = exports.skip = exports.slice = exports.skipRepeatsWith = exports.skipRepeats = exports.sampleArray = exports.sample = exports.fromPromise = exports.awaitPromises = exports.drain = exports.observe = exports.mergeConcurrently = exports.mergeMapConcurrently = exports.merge = exports.mergeArray = exports.loop = exports.debounce = exports.throttle = exports.join = exports.chain = exports.flatMap = exports.flatMapError = exports.recoverWith = exports.delay = exports.continueWith = exports.concatMap = exports.combine = exports.combineArray = exports.startWith = exports.concat = exports.ap = exports.reduce = exports.scan = exports.map = exports.filter = exports.unfold = exports.throwError = exports.periodic = exports.iterate = exports.generate = exports.fromIterable = exports.fromEvent = exports.fromArray = exports.from = exports.create = exports.never = exports.empty = exports.just = exports.of = exports.Stream = exports.disposable = undefined;
+  exports.tryEnd = exports.tryEvent = exports.tryRunTask = exports.makeIterable = exports.getIterator = exports.isIterable = exports.invoke = exports.insertByTime = exports.binarySearch = exports.LinkedList = exports.Queue = exports.isPromise = exports.defer = exports.fatalError = exports.nodeTimer = exports.timeoutTimer = exports.Scheduler = exports.defaultScheduler = exports.runAsTask = exports.Task = exports.ScheduledTask = exports.PropagateTask = exports.Observer = exports.hasValue = exports.IndexSink = exports.DeferredSink = exports.runSource = exports.withScheduler = exports.withDefaultScheduler = exports.zip = exports.zipArray = exports.constant = exports.tap = exports.transduce = exports.during = exports.skipUntil = exports.takeUntil = exports.switchLatest = exports.skipWhile = exports.takeWhile = exports.take = exports.skip = exports.slice = exports.skipRepeatsWith = exports.skipRepeats = exports.sampleArray = exports.sample = exports.fromPromise = exports.awaitPromises = exports.drain = exports.forEach = exports.observe = exports.mergeConcurrently = exports.mergeMapConcurrently = exports.merge = exports.mergeArray = exports.loop = exports.debounce = exports.throttle = exports.join = exports.chain = exports.flatMap = exports.flatMapError = exports.recoverWith = exports.delay = exports.continueWith = exports.concatMap = exports.combine = exports.combineArray = exports.startWith = exports.concat = exports.ap = exports.reduce = exports.scan = exports.map = exports.filter = exports.unfold = exports.throwError = exports.periodic = exports.iterate = exports.generate = exports.fromIterable = exports.fromEvent = exports.fromArray = exports.from = exports.create = exports.never = exports.empty = exports.just = exports.of = exports.Stream = exports.disposable = undefined;
 
   function _possibleConstructorReturn(self, call) {
     if (!self) {
@@ -412,8 +412,8 @@
       }
     }, {
       key: 'error',
-      value: function error() {
-        this.task.error(this.time);
+      value: function error(err) {
+        this.task.error(this.time, err);
       }
     }, {
       key: 'cancel',
@@ -720,7 +720,10 @@
   }
 
   function once(disposable) {
-    return new Disposable(disposeMemoized, memoized(disposable));
+    var memoizedDisposable = memoized(disposable);
+    return new Disposable(function () {
+      return disposeMemoized(memoizedDisposable);
+    }, void 0);
   }
 
   function create(dispose, data) {
@@ -1175,15 +1178,21 @@
     return ArrayProducer;
   }();
 
-  function runProducer(task, array, sink) {
-    for (var i = 0, l = array.length; i < l && task.active; ++i) {
+  function runProducer(time, array, sink) {
+    produce(this, array, sink);
+  }
+
+  function produce(task, array, sink) {
+    var length = array.length;
+    for (var i = 0; i < length && task.active; ++i) {
       sink.event(0, array[i]);
     }
-    var end = function end() {
-      return sink.end(0);
-    };
 
     task.active && end();
+
+    function end() {
+      sink.end(0, void 0);
+    }
   }
 
   function fromIterable(iterable) {
@@ -1701,7 +1710,7 @@
   });
 
   var reduce$1 = (0, _prelude.curry3)(function (fn, initial, stream) {
-    return withDefaultScheduler(_prelude.noop, new Accumulate(AccumulateSink, fn, initial, stream.source));
+    return withDefaultScheduler(function () {}, new Accumulate(AccumulateSink, fn, initial, stream.source));
   });
 
   var Accumulate = function () {
@@ -2095,11 +2104,7 @@
     _createClass(Outer, [{
       key: 'event',
       value: function event(time, stream) {
-        if (this.current.length < this.concurrency) {
-          this._startInner(time, stream);
-        } else {
-          this.pending.push(stream);
-        }
+        this._addInner(time, stream);
       }
     }, {
       key: 'error',
@@ -2119,7 +2124,16 @@
       value: function dispose() {
         this.active = false;
         this.pending.length = 0;
-        return Promise.all([this.disposable.dispose9(), this.current.dispose()]);
+        return Promise.all([this.disposable.dispose(), this.current.dispose()]);
+      }
+    }, {
+      key: '_addInner',
+      value: function _addInner(time, stream) {
+        if (this.current.length < this.concurrency) {
+          this._startInner(time, stream);
+        } else {
+          this.pending.push(stream);
+        }
       }
     }, {
       key: '_startInner',
@@ -2612,6 +2626,8 @@
   var observe = (0, _prelude.curry2)(function (fn, stream) {
     return withDefaultScheduler(fn, stream.source);
   });
+
+  var forEach = observe;
 
   var drain = function drain(stream) {
     return withDefaultScheduler(_prelude.noop, stream.source);
@@ -3734,6 +3750,7 @@
   exports.mergeMapConcurrently = mergeMapConcurrently;
   exports.mergeConcurrently = mergeConcurrently;
   exports.observe = observe;
+  exports.forEach = forEach;
   exports.drain = drain;
   exports.awaitPromises = awaitPromises;
   exports.fromPromise = fromPromise;
